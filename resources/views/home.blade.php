@@ -86,7 +86,7 @@
                             {{ session('status') }}
                         </div>
                     @endif
-                    <p>You are logged in!</p>
+                    <p>Congratulations {{ Auth::user()->name }} ! You are logged in!</p>
                     
                      <!-- Bootstrap Boilerplate... -->
 
@@ -117,9 +117,9 @@
                             </div>
                             <br>
                             <!-- Add Task Button -->
-                            <div class="form-group pull-right">
-                                <div class="col-sm-offset-3 col-sm-6 pull-right">
-                                    <button type="submit" class="pull-right">
+                            <div class="form-group">
+                                <div class="col-sm-offset-7 col-sm-6" >
+                                    <button type="submit" >
                                         <i class="fa fa-plus"></i> 
                                     </button>
                                 </div>
