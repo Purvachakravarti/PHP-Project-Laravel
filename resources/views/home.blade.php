@@ -5,23 +5,50 @@
         padding: 20px;
     }
     .fa-edit{
-        border-color: #c49f47;
+        border-radius: 3px;
+        border: 1px solid #c49f47;
         color: #c49f47;
-        font-size: 25px;
+        font-size: 15px;
+        margin: 5px 0;
+        padding: 10px;
     }
     .fa-trash-alt{
-        border-color: #e7505a;
+        border-radius: 3px;
+        border: 1px solid #e7505a;
         color: #e7505a;
-        font-size: 25px;
+        font-size: 15px;
+        margin: 5px 0;
+        padding: 10px;
+   
     }
     .fa-plus{
-        border-color: #32c5d2;
+        border-radius: 3px;
+        border: 1px solid #32c5d2;
         color: #32c5d2;
-        font-size: 25px;
+        font-size: 15px;
+        margin: 5px 0;
+        padding: 10px;
+
     }
     .fa-plus, .fa-trash-alt, .fa-edit {
     display: table-cell;
-}
+    }
+    .panel-heading{
+        padding: 15px 0px 15px 10px;
+        color: black;
+        background-color: #add5f9;
+    }
+    .body-style{
+        border: 1px solid #add4f9;
+    }
+    .table{
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
+    table, td {
+     text-align: center;
+    }
 </style>
 <script src="https://kit.fontawesome.com/f5201b0a29.js"></script>
 
@@ -49,7 +76,7 @@
 </div>
     <!-- Bootstrap Boilerplate... -->
 
-    <div class="panel-body">
+    <div class="panel-body boder-style">
         <!-- Display Validation Errors -->
         @include('common.errors')
 
@@ -76,10 +103,10 @@
             </div>
             <br>
             <!-- Add Task Button -->
-            <div class="form-group">
-                <div class="col-sm-offset-3 col-sm-6">
-                    <button type="submit" class="btn btn-default">
-                        <i class="fa fa-plus"></i> Add Task
+            <div class="form-group pull-right">
+                <div class="col-sm-offset-3 col-sm-6 pull-right">
+                    <button type="submit" class="pull-right">
+                        <i class="fa fa-plus"></i> 
                     </button>
                 </div>
             </div>
@@ -91,12 +118,12 @@
     <!-- Current Tasks -->
     @if (count($tasks) > 0)
     <div class="container">
-        <div class="panel panel-default boder-style">
+        <div class="panel panel-default ">
             <div class="panel-heading">
-                Current Tasks
+                <strong>CURRENT TASKS</strong>
             </div>
 
-            <div class="panel-body">
+            <div class="panel-body body-style">
                 <table class="table table-striped">
 
                     <!-- Table Headings -->
