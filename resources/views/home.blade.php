@@ -1,7 +1,7 @@
 
 <style>
     .boder-style{
-        border: 1px solid grey;
+        border: 1px solid #dee2e6;
         padding: 20px;
     }
     .fa-edit{
@@ -21,7 +21,7 @@
         padding: 10px;
    
     }
-    .fa-plus{
+    .fa-plus , .fa-save{
         border-radius: 3px;
         border: 1px solid #32c5d2;
         color: #32c5d2;
@@ -39,13 +39,8 @@
         /* #add5f9 */
         background-color: lightgray;
     }
-    .body-style{
+    table{
         border: 1px solid lightgray;
-    }
-    .table{
-        width: 100%;
-        max-width: 100%;
-        margin-bottom: 20px;
     }
     table, td {
         text-align: center;
@@ -60,20 +55,6 @@
         color: red;
     }
 </style>
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
-
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-
-    <script src="https://kit.fontawesome.com/f5201b0a29.js"></script>
-
-
-
-
 @extends('layouts.app')
 
 @section('content')
@@ -89,7 +70,7 @@
                             {{ session('status') }}
                         </div>
                     @endif
-                    <p>Congratulations {{ Auth::user()->name }} ! You are logged in!</p>
+                    
                     
                      <!-- Bootstrap Boilerplate... -->
 
@@ -98,7 +79,7 @@
                         @include('common.errors')
 
                         <!-- New Task Form -->
-                        <form action="/task" method="POST" class="form-horizontal">
+                        <form action="/task/0" method="POST" class="form-horizontal">
                             {{ csrf_field() }}
 
                             <!-- Task Name -->
@@ -131,21 +112,44 @@
                         </form>
                     </div>
 
+                    
                     <!-- TODO: Current Tasks -->
-
-                    <!-- Current Tasks -->
                     @if (count($tasks) > 0)
                
                         <div class="panel panel-default ">
                             <div class="panel-heading">
-                                <strong>MY CURRENT TASKS</strong>
+                                <strong >MY CURRENT TASKS</strong>
+                                <form action="/home/search" method="POST" role="search">
+                                    {{ csrf_field() }}
+                                    <div class="input-group row" >
+                                        <input type="text" class="form-control col-sm-2" name="q"
+                                            placeholder="Search Tasks By Keyword"> <span class="input-group-btn">
+                                            <button type="submit" class="btn btn-default">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </form>
+
+                                <div class="dropdown">
+                                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                    Filters
+                                  </button>
+                                  <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="/home/filter/All">All</a>
+                                    <a class="dropdown-item" href="/home/filter/Completed">Completed</a>
+                                    <a class="dropdown-item" href="/home/filter/Active">Active</a>
+                                    <a class="dropdown-item" href="/home/filter/Deleted">Deleted</a>
+                                  </div>
+                                </div>
                             </div>
 
-                            <div class="panel-body body-style">
-                                <table class="table table-striped">
+                            <div class="panel-body ">
+                                <table class="table">
 
                                     <!-- Table Headings -->
                                     <thead>
+                                        <th></th>
                                         <th>Task</th>
                                         <th>Due Date</th>
                                         <th>Status</th>
@@ -161,33 +165,51 @@
                                              $overdue = "overdue";
                                         ?>
                                             <tr class = "{{ $overdue }}" >
+                                                <!-- Completed Checkbox -->
+                                                <td>
+                                                    <div id="complete_{{ $task->id }}">
+                                                        <i class="far fa-check-square"></i>
+                                                    </div>
+                                                </td>
                                                 <!-- Task Name -->
-                                                <td class="table-text">
-                                                    <div>{{ $task->tasks_name }}</div>
+                                                <form id="editform_{{ $task->id }}" action="/task/{{ $task->id }}" method="POST">
+                                                {{ csrf_field() }}
+                                                <td class="table-text" id="tname">
+                                                    <div class="tasks_{{ $task->id }}">{{ $task->tasks_name }}</div>
+                                                    <input type="text" name="tasks_n" value="{{ $task->tasks_name }}" id="task-n" class="form-control editField_{{ $task->id }}" style="display: none">
                                                 </td>
                                                 <!-- Task Due Date -->
-                                                <td class="table-text">
-                                                    
-                                                    <div>{{ $task->tasks_duedate }}</div>
-                                                    
+                                                <td class="table-text" id="tduedate">
+                                                    <div class="tasks_{{ $task->id }}">{{ $task->tasks_duedate }}</div>
+                                                     @if($overdue == "overdue")
+                                                        <p><i>Over Due</i></p>
+                                                     @endif
+
+
+                                                    <input type="date" name="tasks_dd" id="tasks_dd " value = "{{ $task->tasks_duedate }}" class="form-control editField_{{ $task->id }}" style="display: none">
                                                 </td>
+                                                </form>
                                                 <!-- Task Status -->
                                                 <td class="table-text">
                                                     <div>{{ $task->tasks_status }}</div>
                                                 </td>
 
                                                 <td>
+                                                    <!-- TODO: Edit Button -->
+                                                    <div id = "tedit_{{$task->id}}" onclick = "editFunction( {{$task->id}} )"><i class="fas fa-edit"></i></div>
+
+                                                    
+                                                        <button id = "tsave_{{$task->id}}" style="display: none" onclick = "submitEdit( {{$task->id}} )"><i class="far fa-save "></i> Save</button>
+                                                    
+
                                                     <!-- TODO: Delete Button -->
                                                      <form action="/task/{{ $task->id }}" method="POST">
                                                         {{ csrf_field() }}
                                                         {{ method_field('DELETE') }}
                                                         <button><i class="far fa-trash-alt"></i></button>
-                                                    </form>
-                                                    <form action="/task/{{ $task->id }}" method="POST">
-                                                        {{ csrf_field() }}
-                                                        {{ method_field('EDIT') }}
-                                                        <button><i class="fas fa-edit"></i></button>
-                                                    </form>
+                                                     </form>
+                                                    
+                                                    
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -203,22 +225,19 @@
     </div>
 </div>
 <script type="text/javascript">
-    $(document).ready(function () {
     
-   var todaysDate = new Date(); // Gets today's date
-    
-    // Max date attribute is in "YYYY-MM-DD".  Need to format today's date accordingly
-    
-    var year = todaysDate.getFullYear();                        // YYYY
-    var month = ("0" + (todaysDate.getMonth() + 1)).slice(-2);  // MM
-    var day = ("0" + todaysDate.getDate()).slice(-2);           // DD
+    function editFunction(task_id) {
+      $(".editField_"+task_id).show();
+      $(".tasks_"+task_id).hide();
+      $("#tedit_"+task_id).hide();
+      $("#tsave_"+task_id).show();
 
-    var minDate = (year +"-"+ month +"-"+ day); // Results in "YYYY-MM-DD" for today's date 
-    
-    // Now to set the max date value for the calendar to be today's date
-    $('#tasks_duedate input').attr('min',minDate);
- 
-  });
+    }
+
+    function submitEdit(task_id){
+       $("#editform_"+task_id).submit(); 
+    }
+   
 </script>
    
 @endsection

@@ -1,6 +1,8 @@
 <?php
 use App\Task;
 use Illuminate\Http\Request;
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -14,64 +16,52 @@ use Illuminate\Http\Request;
 
 
 /**
- * Display All Tasks
- */
-// Route::get('/', function () {
-//     //Code
-//      $tasks = Task::orderBy('created_at', 'asc')->get();
-
-//     return view('tasks', [
-//         'tasks' => $tasks
-//     ]);
-// });
-
-/**
  * Add A New Task
  */
-Route::post('/task', function (Request $request) {
+Route::post('/task/{id}', function (Request $request, $id) {
     
-    $validator = Validator::make($request->all(), [
-        'tasks_name' => 'required|max:255',
-    ]);
-
-    if ($validator->fails()) {
-        return redirect('/')
-            ->withInput()
-            ->withErrors($validator);
+    $task = Task::where('id','=',$id)->first();
+    if(!empty($task)){
+    	$name = $request->tasks_n;
+    	$duedate = $request->tasks_dd;
     }
+	else
+	{
+		$validator = Validator::make($request->all(), [
+        'tasks_name' => 'required|max:255',
 
-    $user = auth()->user();
-
-    $task = new Task;
-    $task->tasks_name = $request->tasks_name;
-    $task->user_id = $user->id;
-    $task->tasks_duedate = $request->tasks_duedate;
+	    ]);
+	    if ($validator->fails()) {
+	        return redirect('/')
+	            ->withInput()
+	            ->withErrors($validator);
+	    } 
+		$task = new Task;
+		$user = auth()->user();
+		$task->user_id = $user->id;
+		$name = $request->tasks_name;
+    	$duedate = $request->tasks_duedate;
+	}
+    
+	$task->tasks_name = $name;
+    $task->tasks_duedate = $duedate;
     $task->save();
 
     return redirect('/home');
 
 });
 
-/**
- * Edit A New Task
- */
-Route::post('/task/{id}', function ($id) {
-    //
-});
 
 /**
  * Delete An Existing Task
  */
 Route::delete('/task/{id}', function ($id) {
-	 Task::findOrFail($id)->delete();
-
+	 // Task::findOrFail($id)->delete();
+	 $task = Task::where('id','=',$id)->first();
+	 $task->tasks_status = 'DELETED';
+	 $task->save();
     return redirect('/home');
 });
-
-/**
- * Edit An Existing Task
- */
-
 
 
 Auth::routes();
@@ -82,3 +72,5 @@ Route::get('/', function () {
 
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::post('/home/search', 'HomeController@search');
+Route::get('/home/filter/{type}', 'HomeController@filter');
