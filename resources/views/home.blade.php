@@ -52,7 +52,13 @@
 
     }
     .overdue{
-        color: red;
+        background-color: #fbfbe0a8;
+    }
+    .deleted{
+        background-color: #ffe5e591;
+    }
+    .completed{
+        background-color: #ecffec;
     }
 </style>
 @extends('layouts.app')
@@ -118,29 +124,36 @@
                
                         <div class="panel panel-default ">
                             <div class="panel-heading">
-                                <strong >MY CURRENT TASKS</strong>
-                                <form action="/home/search" method="POST" role="search">
-                                    {{ csrf_field() }}
-                                    <div class="input-group row" >
-                                        <input type="text" class="form-control col-sm-2" name="q"
-                                            placeholder="Search Tasks By Keyword"> <span class="input-group-btn">
-                                            <button type="submit" class="btn btn-default">
-                                                <i class="fas fa-search"></i>
-                                            </button>
-                                        </span>
-                                    </div>
-                                </form>
+                                <div class="row">
+                                    <div class="col-sm-4"><strong >MY TASKS</strong></div>
+                                    <div class="col-sm-4">
+                                        <form action="/home/search" method="POST" >
+                                        {{ csrf_field() }}
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" placeholder="Search Tasks By Keyword" name="q">
+                                                <div class="input-group-append">
+                                                  <button class="btn btn-secondary" type="button">
+                                                    <i class="fa fa-search"></i>
+                                                  </button>
+                                                </div>
+                                            </div>
+                                        </form>
 
-                                <div class="dropdown">
-                                  <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                                    Filters
-                                  </button>
-                                  <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="/home/filter/All">All</a>
-                                    <a class="dropdown-item" href="/home/filter/Completed">Completed</a>
-                                    <a class="dropdown-item" href="/home/filter/Active">Active</a>
-                                    <a class="dropdown-item" href="/home/filter/Deleted">Deleted</a>
-                                  </div>
+                                        
+
+                                    </div>
+
+                                    <div class="dropdown col-sm-4">
+                                      <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"  style="float: right;margin-right: 10px">
+                                        Filters
+                                      </button>
+                                      <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="/home/filter/All">All</a>
+                                        <a class="dropdown-item" href="/home/filter/Completed">Completed</a>
+                                        <a class="dropdown-item" href="/home/filter/Active">Active</a>
+                                        <a class="dropdown-item" href="/home/filter/Deleted">Deleted</a>
+                                      </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -159,17 +172,24 @@
                                     <!-- Table Body -->
                                     <tbody>
                                         @foreach ($tasks as $task)
-                                        <?php $overdue = "";
-                                            $duedate = $task->tasks_duedate;
-                                            if($duedate < date('Y-m-d'))
-                                             $overdue = "overdue";
+                                        <?php $status = "";
+                                            if($task->tasks_duedate < date('Y-m-d'))
+                                             $status = "overdue";
+                                            if($task->tasks_status == "COMPLETED")
+                                            $status = "completed";
+                                            if($task->tasks_status == "DELETED")
+                                            $status = "deleted";
                                         ?>
-                                            <tr class = "{{ $overdue }}" >
+                                            <tr class = "{{ $status }}" >
                                                 <!-- Completed Checkbox -->
                                                 <td>
-                                                    <div id="complete_{{ $task->id }}">
-                                                        <i class="far fa-check-square"></i>
-                                                    </div>
+                                                    <form action="/home/complete/{{ $task->id }}" method="POST" id="completeform_{{ $task->id }}">
+                                                        {{ csrf_field() }}
+                                                        <div onclick="completeFunction({{ $task->id }})">
+                                                            <i class="far fa-check-square"></i>
+                                                        </div>
+                                                    </form>
+
                                                 </td>
                                                 <!-- Task Name -->
                                                 <form id="editform_{{ $task->id }}" action="/task/{{ $task->id }}" method="POST">
@@ -180,13 +200,11 @@
                                                 </td>
                                                 <!-- Task Due Date -->
                                                 <td class="table-text" id="tduedate">
-                                                    <div class="tasks_{{ $task->id }}">{{ $task->tasks_duedate }}</div>
-                                                     @if($overdue == "overdue")
-                                                        <p><i>Over Due</i></p>
-                                                     @endif
-
-
+                                                    <div class="tasks_{{ $task->id }}">{{ date('m/d/Y', strtotime($task->tasks_duedate)) }}</div>
                                                     <input type="date" name="tasks_dd" id="tasks_dd " value = "{{ $task->tasks_duedate }}" class="form-control editField_{{ $task->id }}" style="display: none">
+                                                     @if($status == "overdue")
+                                                        <p style="color:red"><i>Over Due</i></p>
+                                                     @endif
                                                 </td>
                                                 </form>
                                                 <!-- Task Status -->
@@ -195,21 +213,19 @@
                                                 </td>
 
                                                 <td>
-                                                    <!-- TODO: Edit Button -->
-                                                    <div id = "tedit_{{$task->id}}" onclick = "editFunction( {{$task->id}} )"><i class="fas fa-edit"></i></div>
-
-                                                    
-                                                        <button id = "tsave_{{$task->id}}" style="display: none" onclick = "submitEdit( {{$task->id}} )"><i class="far fa-save "></i> Save</button>
-                                                    
-
-                                                    <!-- TODO: Delete Button -->
-                                                     <form action="/task/{{ $task->id }}" method="POST">
-                                                        {{ csrf_field() }}
-                                                        {{ method_field('DELETE') }}
-                                                        <button><i class="far fa-trash-alt"></i></button>
-                                                     </form>
-                                                    
-                                                    
+                                                    <div class="col-xs-12">
+                                                        <!-- TODO: Edit Button -->
+                                                        <div id = "tedit_{{$task->id}}" onclick = "editFunction( {{$task->id}} )" style="display: inline"><i class="fas fa-edit"></i></div>
+                                                        <!-- TODO: Save Button -->
+                                                        <div id = "tsave_{{$task->id}}" style="display: none" onclick = "submitEdit( {{$task->id}} )"><i class="far fa-save " > Save</i> </div>
+                                                   
+                                                        <!-- TODO: Delete Button -->
+                                                        <div style="display: inline">
+                                                            <form action="/home/deleted/{{ $task->id }}" method="POST" id="deletedform_{{ $task->id }}" style="display: inline-block">{{ csrf_field() }}
+                                                                <div onclick = "deletedFunction( {{$task->id}})" > <i class="far fa-trash-alt"></i></div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -225,17 +241,26 @@
     </div>
 </div>
 <script type="text/javascript">
+
     
     function editFunction(task_id) {
       $(".editField_"+task_id).show();
       $(".tasks_"+task_id).hide();
       $("#tedit_"+task_id).hide();
       $("#tsave_"+task_id).show();
+      $("#tsave_"+task_id).css("display", "inline");
 
     }
-
     function submitEdit(task_id){
        $("#editform_"+task_id).submit(); 
+    }
+
+    function completeFunction(task_id) {
+      $("#completeform_"+task_id).submit(); 
+    }
+
+    function deletedFunction(task_id) {
+      $("#deletedform_"+task_id).submit(); 
     }
    
 </script>

@@ -25,7 +25,7 @@ class HomeController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $tasks = Task::where([['tasks_status', '=','ACTIVE'],['user_id','=',$user->id]])->orderBy('tasks_duedate', 'asc')->get();
+        $tasks = Task::whereIn('tasks_status', array('ACTIVE','COMPLETED'))->where('user_id','=',$user->id)->orderBy('tasks_duedate', 'asc')->get();
 
         // return view('home');
         return view('home', [
@@ -73,6 +73,38 @@ class HomeController extends Controller
         if(count($searchedtask) > 0)
             return view('home',['tasks' => $searchedtask]);
         else return view ('home',['tasks' => array()])->withMessage('No Details found. Try to search again !');
+       
+    }
+
+    public function complete($id)
+    {
+     
+        $task = Task::where('id','=',$id)->first();
+        if($task){
+            switch($task->tasks_status)
+            {
+                case 'COMPLETED': 
+                    $task->tasks_status = 'ACTIVE';
+                    break;
+                case 'ACTIVE': 
+                    $task->tasks_status = 'COMPLETED';
+                    break;
+            }
+             $task->save();
+        }
+
+        return redirect('/home');
+       
+    }
+    public function deleted($id)
+    {
+     
+        $task = Task::where('id','=',$id)->first();
+        $task->tasks_status = 'DELETED';
+        $task->save();
+    
+
+        return redirect('/home');
        
     }
 }
