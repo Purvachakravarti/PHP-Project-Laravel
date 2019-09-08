@@ -56,6 +56,9 @@
         color: #5A5959;
 
     }
+    .overdue{
+        color: red;
+    }
 </style>
 
     <!-- Styles -->
@@ -117,13 +120,14 @@
                             </div>
                             <br>
                             <!-- Add Task Button -->
-                            <div class="form-group">
-                                <div class="col-sm-offset-7 col-sm-6" >
+                            <div class="form-group" style="float: right">
+                                <div>
                                     <button type="submit" >
-                                        <i class="fa fa-plus"></i> 
+                                        <i class="fa fa-plus">Add Task</i> 
                                     </button>
                                 </div>
-                            </div>
+                            </div>  
+                            <br>
                         </form>
                     </div>
 
@@ -134,7 +138,7 @@
                
                         <div class="panel panel-default ">
                             <div class="panel-heading">
-                                <strong>CURRENT TASKS</strong>
+                                <strong>MY CURRENT TASKS</strong>
                             </div>
 
                             <div class="panel-body body-style">
@@ -151,14 +155,21 @@
                                     <!-- Table Body -->
                                     <tbody>
                                         @foreach ($tasks as $task)
-                                            <tr>
+                                        <?php $overdue = "";
+                                            $duedate = $task->tasks_duedate;
+                                            if($duedate < date('Y-m-d'))
+                                             $overdue = "overdue";
+                                        ?>
+                                            <tr class = "{{ $overdue }}" >
                                                 <!-- Task Name -->
                                                 <td class="table-text">
                                                     <div>{{ $task->tasks_name }}</div>
                                                 </td>
                                                 <!-- Task Due Date -->
                                                 <td class="table-text">
+                                                    
                                                     <div>{{ $task->tasks_duedate }}</div>
+                                                    
                                                 </td>
                                                 <!-- Task Status -->
                                                 <td class="table-text">
@@ -191,5 +202,23 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+    
+   var todaysDate = new Date(); // Gets today's date
+    
+    // Max date attribute is in "YYYY-MM-DD".  Need to format today's date accordingly
+    
+    var year = todaysDate.getFullYear();                        // YYYY
+    var month = ("0" + (todaysDate.getMonth() + 1)).slice(-2);  // MM
+    var day = ("0" + todaysDate.getDate()).slice(-2);           // DD
+
+    var minDate = (year +"-"+ month +"-"+ day); // Results in "YYYY-MM-DD" for today's date 
+    
+    // Now to set the max date value for the calendar to be today's date
+    $('#tasks_duedate input').attr('min',minDate);
+ 
+  });
+</script>
    
 @endsection
