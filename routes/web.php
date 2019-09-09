@@ -27,7 +27,7 @@ Route::post('/task/{id}', function (Request $request, $id) {
 
 	    ]);
 	    if ($validator->fails()) {
-	        return redirect('/')
+	        return redirect('/home')
 	            ->withInput()
 	            ->withErrors($validator);
 	    }
@@ -41,7 +41,7 @@ Route::post('/task/{id}', function (Request $request, $id) {
 
 	    ]);
 	    if ($validator->fails()) {
-	        return redirect('/')
+	        return redirect('/home')
 	            ->withInput()
 	            ->withErrors($validator);
 	    } 

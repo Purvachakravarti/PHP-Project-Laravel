@@ -82,12 +82,12 @@
 
                     <div class="panel-body boder-style">
                         <!-- Display Validation Errors -->
-                        @include('common.errors')
+                        
 
                         <!-- New Task Form -->
                         <form action="/task/0" method="POST" class="form-horizontal">
                             {{ csrf_field() }}
-
+                            @include('common.errors')
                             <!-- Task Name -->
                             <div class="form-group">
                                 <label for="task" class="col-sm-6 control-label">Please enter the Task Name</label>
