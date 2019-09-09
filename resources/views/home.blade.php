@@ -34,7 +34,7 @@
         display: table-cell;
     }
     .panel-heading{
-        padding: 15px 0px 15px 10px;
+        padding: 20px 0px 5px 15px;
         color: black;
         /* #add5f9 */
         background-color: lightgray;
@@ -125,7 +125,7 @@
                         <div class="panel panel-default ">
                             <div class="panel-heading">
                                 <div class="row">
-                                    <div class="col-sm-4"><strong >MY TASKS</strong></div>
+                                    <div class="col-sm-4" style="padding-top: 10px;"><strong >MY TASKS</strong></div>
                                     <div class="col-sm-4">
                                         <form action="/home/search" method="POST" >
                                         {{ csrf_field() }}
@@ -185,8 +185,12 @@
                                                 <td>
                                                     <form action="/home/complete/{{ $task->id }}" method="POST" id="completeform_{{ $task->id }}">
                                                         {{ csrf_field() }}
-                                                        <div onclick="completeFunction({{ $task->id }})">
-                                                            <i class="far fa-check-square"></i>
+                                                        <div onclick="completeFunction({{ $task->id }},'{{ $task->tasks_status }}')">
+                                                            @if($status == "completed")
+                                                                <i class="far fa-check-square"></i>
+                                                            @else
+                                                                <i class="far fa-square"></i>
+                                                            @endif
                                                         </div>
                                                     </form>
 
@@ -215,16 +219,26 @@
                                                 <td>
                                                     <div class="col-xs-12">
                                                         <!-- TODO: Edit Button -->
-                                                        <div id = "tedit_{{$task->id}}" onclick = "editFunction( {{$task->id}} )" style="display: inline"><i class="fas fa-edit"></i></div>
+                                                        @if($status != 'deleted')
+                                                        <div id = "tedit_{{$task->id}}" onclick = "editFunction( {{$task->id}} )" style="display: inline"><i class="fas fa-edit"></i>
+                                                        </div>
                                                         <!-- TODO: Save Button -->
-                                                        <div id = "tsave_{{$task->id}}" style="display: none" onclick = "submitEdit( {{$task->id}} )"><i class="far fa-save " > Save</i> </div>
+                                                        <div id = "tsave_{{$task->id}}" style="display: none" onclick = "submitEdit( {{$task->id}} )"><i class="far fa-save " > Save</i> 
+                                                        </div>
                                                    
                                                         <!-- TODO: Delete Button -->
                                                         <div style="display: inline">
                                                             <form action="/home/deleted/{{ $task->id }}" method="POST" id="deletedform_{{ $task->id }}" style="display: inline-block">{{ csrf_field() }}
-                                                                <div onclick = "deletedFunction( {{$task->id}})" > <i class="far fa-trash-alt"></i></div>
+                                                                <div onclick = "deletedFunction({{$task->id}} , '{{ $task->tasks_status }}') " > <i class="far fa-trash-alt"></i></div>
                                                             </form>
                                                         </div>
+                                                        @else 
+                                                        <div style="display: inline">
+                                                            <form action="/home/revert/{{ $task->id }}" method="POST" id="revertform_{{ $task->id }}" style="display: inline-block">{{ csrf_field() }}
+                                                                <div onclick = "revertFunction({{$task->id}}) " > <i class="fas fa-undo"></i></div>
+                                                            </form>
+                                                        </div>
+                                                        @endif
                                                     </div>
                                                 </td>
                                             </tr>
@@ -255,12 +269,23 @@
        $("#editform_"+task_id).submit(); 
     }
 
-    function completeFunction(task_id) {
-      $("#completeform_"+task_id).submit(); 
+    function completeFunction(task_id,task_status) {
+         if(task_status !== 'DELETED')
+            $("#completeform_"+task_id).submit(); 
+        else
+            alert("Task is Deleted"); 
+    
     }
 
-    function deletedFunction(task_id) {
-      $("#deletedform_"+task_id).submit(); 
+    function deletedFunction(task_id, task_status) {
+        if(task_status !== 'DELETED')
+            $("#deletedform_"+task_id).submit();
+        else
+            alert("Task is already deleted"); 
+    }
+
+    function revertFunction(task_id) {
+        $("#revertform_"+task_id).submit();
     }
    
 </script>

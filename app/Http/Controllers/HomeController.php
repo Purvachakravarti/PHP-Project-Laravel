@@ -100,11 +100,26 @@ class HomeController extends Controller
     {
      
         $task = Task::where('id','=',$id)->first();
-        $task->tasks_status = 'DELETED';
-        $task->save();
+        if($task->tasks_status !== 'DELETED'){
+            $task->tasks_status = 'DELETED';
+            $task->save();
+        }
+       
     
 
         return redirect('/home');
+       
+    }
+
+    public function revert($id)
+    {
+     
+        $task = Task::where('id','=',$id)->first();
+        if($task->tasks_status == 'DELETED'){
+            $task->tasks_status = 'ACTIVE';
+            $task->save();
+        }
+       return redirect('/home');
        
     }
 }

@@ -84,3 +84,4 @@ Route::get('/home/filter/{type}', 'HomeController@filter');
 Route::post('/home/search', 'HomeController@search');
 Route::post('/home/complete/{id}', 'HomeController@complete');
 Route::post('/home/deleted/{id}', 'HomeController@deleted');
+Route::post('/home/revert/{id}', 'HomeController@revert');
